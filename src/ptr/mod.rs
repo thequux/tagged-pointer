@@ -98,7 +98,7 @@ impl<T, B: NumBits> PtrImpl<T, B> {
     };
 
     /// Compile-time checks.
-    fn assert() {
+    const fn assert() {
         // This run-time assertion will always succeed (and will likely be
         // optimized out), but makes it clear that we need the constant to be
         // evaluated (this type's soundness relies on its validity).
@@ -149,6 +149,10 @@ macro_rules! impl_tagged_ptr_common {
                 self.get().0
             }
 
+            pub fn with_ptr(self, ptr: NonNull<T>) -> Self {
+                Self::new(ptr, self.tag())
+            }
+
             /// Sets the pointer without modifying the tag.
             ///
             /// This method is simply equivalent to:
@@ -173,6 +177,10 @@ macro_rules! impl_tagged_ptr_common {
             /// [`self.get().1`](Self::get).
             pub fn tag(self) -> usize {
                 self.get().1
+            }
+
+            pub fn with_tag(self, tag: usize) -> Self {
+                unsafe { Self::new_unchecked(self.ptr(), tag) }
             }
 
             /// Sets the tag without modifying the pointer.
@@ -287,7 +295,7 @@ impl<T, const BITS: Bits> TaggedPtr<T, BITS> {
     /// * `ptr` must be aligned to at least 2<sup>`BITS`</sup>
     ///   (i.e., `1 << BITS`).
     /// * `tag` cannot be greater than [`Self::MAX_TAG`].
-    pub unsafe fn new_unchecked(ptr: NonNull<T>, tag: usize) -> Self {
+    pub const unsafe fn new_unchecked(ptr: NonNull<T>, tag: usize) -> Self {
         // SAFETY: Ensured by caller.
         Self(unsafe { PtrImpl::new_unchecked(ptr, tag) })
     }
@@ -301,7 +309,7 @@ impl<T, const BITS: Bits> TaggedPtr<T, BITS> {
     /// the first 2<sup>`BITS`</sup> (i.e., `1 << BITS`) bytes of `ptr` must
     /// be "dereferenceable" in the sense defined by
     /// [`core::ptr`](core::ptr#safety).
-    pub unsafe fn new_unchecked_dereferenceable(
+    pub const unsafe fn new_unchecked_dereferenceable(
         ptr: NonNull<T>,
         tag: usize,
     ) -> Self {

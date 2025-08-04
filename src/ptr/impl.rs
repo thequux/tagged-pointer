@@ -56,7 +56,7 @@ impl<T, B: NumBits> PtrImpl<T, B> {
     ///   properly aligned for its type, this requirement is automatically
     ///   fulfilled).
     /// * `tag` must be less than [`Self::ALIGNMENT`].
-    pub unsafe fn new_unchecked(ptr: NonNull<T>, tag: usize) -> Self {
+    pub const unsafe fn new_unchecked(ptr: NonNull<T>, tag: usize) -> Self {
         Self::assert();
         debug_assert!(tag < Self::ALIGNMENT);
         let tagged = ptr.as_ptr().cast::<u8>().wrapping_add(tag);
@@ -73,7 +73,7 @@ impl<T, B: NumBits> PtrImpl<T, B> {
     /// All the conditions of [`Self::new_unchecked`] must be upheld, plus
     /// the first [`Self::ALIGNMENT`] bytes of `ptr` must be
     /// [dereferenceable](core::ptr#safety)
-    pub unsafe fn new_unchecked_dereferenceable(
+    pub const unsafe fn new_unchecked_dereferenceable(
         ptr: NonNull<T>,
         tag: usize,
     ) -> Self {

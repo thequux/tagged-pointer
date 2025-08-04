@@ -76,7 +76,7 @@ impl<T> TaggedPtr<T> {
     /// * `ptr` must be properly aligned (i.e., aligned to at least
     ///   [`align_of::<T>()`][core::mem::align_of]).
     /// * `tag` cannot be greater than [`Self::MAX_TAG`].
-    pub unsafe fn new_unchecked(ptr: NonNull<T>, tag: usize) -> Self {
+    pub const unsafe fn new_unchecked(ptr: NonNull<T>, tag: usize) -> Self {
         // SAFETY: Ensured by caller.
         Self(unsafe { PtrImpl::new_unchecked(ptr, tag) })
     }
@@ -89,7 +89,7 @@ impl<T> TaggedPtr<T> {
     /// All conditions of [`Self::new_unchecked`] must be upheld, plus `ptr`
     /// must be "dereferenceable" in the sense defined by
     /// [`core::ptr`](core::ptr#safety).
-    pub unsafe fn new_unchecked_dereferenceable(
+    pub const unsafe fn new_unchecked_dereferenceable(
         ptr: NonNull<T>,
         tag: usize,
     ) -> Self {
